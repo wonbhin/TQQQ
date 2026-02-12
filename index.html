@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>사리사욕 TQQQ 알고리즘 V13</title>
+    <title>사리사욕 TQQQ 알고리즘 V16</title>
     <style>
         @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
 
@@ -14,8 +14,8 @@
             --text-main: #e4e4e7;
             --text-sub: #a1a1aa;
             
-            --color-up: #34d399;
-            --color-down: #f87171;
+            --color-up: #34d399;   /* 상승 (초록) */
+            --color-down: #f87171; /* 하락 (빨강) */
             --color-accent: #60a5fa;
             --color-gold: #fbbf24;
             
@@ -30,7 +30,7 @@
             color: var(--text-main);
             font-family: var(--font-main);
             margin: 0;
-            padding: 16px; /* 모바일 여백 조정 */
+            padding: 16px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -39,7 +39,7 @@
 
         .container { width: 100%; max-width: 900px; display: grid; gap: 16px; }
 
-        /* 폰트 유틸리티 */
+        /* 폰트 */
         .num-mono { font-family: var(--font-mono); font-weight: 700; letter-spacing: -0.5px; } 
         .num-clean { font-family: var(--font-main); font-weight: 700; letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
         .kor-bold { font-family: var(--font-main); font-weight: 800; letter-spacing: -0.5px; }
@@ -56,10 +56,9 @@
             padding: 24px;
             position: relative;
             overflow: hidden;
-            /* 기본은 왼쪽 정렬 유지 (PC) */
         }
 
-        /* 1. 헤더 */
+        /* 헤더 */
         .header-section {
             text-align: center;
             margin-bottom: 10px;
@@ -68,7 +67,7 @@
         }
         
         .quote-box {
-            font-size: 1.2rem; /* 모바일 고려 사이즈 조정 */
+            font-size: 1.2rem;
             font-weight: 800;
             color: #fff;
             min-height: 1.4em;
@@ -77,7 +76,7 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 6px;
             display: inline-block;
-            word-break: keep-all; /* 단어 단위 줄바꿈 */
+            word-break: keep-all;
         }
 
         .brand-sub {
@@ -88,18 +87,20 @@
             word-break: keep-all;
         }
 
-        /* 2. 지표 그리드 */
+        /* 지표 그리드 */
         .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .metric-label { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 8px; display: block; font-weight: 500; }
         .metric-value { font-size: 1.6rem; font-weight: 700; color: #fff; }
-        .metric-sub { font-size: 0.8rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+        /* TQQQ용 서브 레이아웃 */
+        .metric-sub-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+        .metric-sub { font-size: 0.9rem; font-weight: 700; } 
 
-        /* 3. 인풋 */
+        /* 인풋 */
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .input-group { position: relative; }
         input[type="number"] {
             width: 100%; background: #000000; border: 1px solid var(--border);
-            border-radius: 12px; padding: 16px 16px 16px 16px; /* 패딩 조정 */
+            border-radius: 12px; padding: 16px 16px 16px 16px;
             color: #fff; font-size: 1.1rem; font-weight: 700; text-align: right; font-family: var(--font-mono);
             -moz-appearance: textfield;
         }
@@ -110,11 +111,11 @@
             margin-bottom: 6px; font-weight: 600; 
         }
 
-        /* 4. 지수 상태 */
+        /* 지수 상태 */
         .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .status-badge { font-size: 0.85rem; font-weight: 700; color: var(--text-main); background: #27272a; padding: 4px 10px; border-radius: 6px; }
 
-        /* 5. 전략 결과 */
+        /* 전략 결과 */
         .strategy-card { background: radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent); border: 1px solid var(--border); }
         .strategy-title { font-size: 1.5rem; font-weight: 900; margin-top: 5px; color: #fff; word-break: keep-all; }
         .reasoning {
@@ -133,7 +134,7 @@
         .step-desc { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 2px; }
         .step-val { font-size: 1.05rem; font-weight: 700; font-family: var(--font-main); }
 
-        /* 6. 매매 원칙 */
+        /* 매매 원칙 */
         .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .rule-item { background: rgba(255,255,255,0.02); padding: 16px; border-radius: 12px; border: 1px solid var(--border); }
         .rule-title { font-weight: 800; font-size: 1rem; margin-bottom: 10px; display:flex; align-items:center; gap:6px; }
@@ -141,7 +142,7 @@
         .highlight-txt { color: var(--color-accent); font-weight: 800; }
         .highlight-gold { color: var(--color-gold); font-weight: 800; }
         
-        /* 7. 테이블 */
+        /* 테이블 */
         .wealth-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .wealth-table th { text-align: left; color: var(--text-sub); font-size: 0.8rem; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
         .wealth-table td { padding: 16px 0; border-bottom: 1px solid #27272a55; font-size: 0.95rem; font-weight: 600; font-family: var(--font-main); }
@@ -156,47 +157,18 @@
         .glow-allin { box-shadow: 0 0 50px -10px rgba(251, 191, 36, 0.4); border-color: var(--color-gold); animation: borderPulse 2s infinite; }
         @keyframes borderPulse { 0% {border-color: var(--color-gold);} 50% {border-color: #f59e0b;} 100% {border-color: var(--color-gold);} }
 
-        /* --- 📱 모바일 최적화 (Mobile First Adjustments) --- */
+        /* 모바일 최적화 */
         @media (max-width: 768px) {
-            /* 그리드 1열로 변경 */
             .metrics-grid, .input-grid, .status-grid, .rules-grid { grid-template-columns: 1fr; }
-            
-            /* 카드 내부 가운데 정렬 */
-            .card {
-                text-align: center; /* 텍스트 가운데 정렬 */
-                display: flex;
-                flex-direction: column;
-                align-items: center; /* 아이템 가운데 정렬 */
-                justify-content: center;
-            }
-            
-            /* Flex-between 카드 (VIX, F&G, 전략 헤더) 구조 변경 */
-            .flex-between {
-                flex-direction: column; /* 세로 배치 */
-                gap: 12px;
-                text-align: center;
-                width: 100%;
-            }
-            .flex-between > div {
-                text-align: center !important;
-                width: 100%;
-            }
-
-            /* 인풋창 스타일 변경 */
-            .input-group { width: 100%; text-align: left; } /* 라벨은 왼쪽으로 */
-            input[type="number"] { text-align: center; } /* 입력 숫자는 가운데 */
-
-            /* 메트릭스 서브 텍스트 가운데 정렬 */
-            .metric-sub { justify-content: center; }
-            
-            /* 테이블 폰트 조정 */
-            .wealth-table th, .wealth-table td { text-align: center; } /* 테이블 내용 가운데 */
-            .wealth-table th:first-child, .wealth-table td:first-child { text-align: left; } /* 기간은 왼쪽 */
-            
-            /* 전략 설명 가운데 정렬 */
+            .card { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+            .flex-between { flex-direction: column; gap: 12px; text-align: center; width: 100%; }
+            .flex-between > div { text-align: center !important; width: 100%; }
+            .input-group { width: 100%; text-align: left; }
+            input[type="number"] { text-align: center; }
+            .metric-sub-row { justify-content: center; }
+            .wealth-table th, .wealth-table td { text-align: center; }
+            .wealth-table th:first-child, .wealth-table td:first-child { text-align: left; }
             .reasoning { text-align: center; border-left: none; border-top: 3px solid var(--color-accent); border-radius: 8px; }
-            
-            /* 스텝 아이템 */
             .step-item { flex-direction: column; text-align: center; gap: 8px; }
             .step-icon { margin-right: 0; margin-bottom: 4px; }
         }
@@ -219,17 +191,25 @@
         <div class="card">
             <span class="metric-label">TQQQ 현재가</span>
             <div class="metric-value num-mono" id="tqqqPrice">$0.00</div>
-            <div class="metric-sub num-clean" id="tqqqChange">--%</div>
+            <div class="metric-sub-row">
+                <span class="metric-sub num-clean" id="tqqqChange">--%</span>
+                <span class="text-xs" style="opacity:0.5;" id="tqqqTime">--:--:--</span>
+            </div>
         </div>
         <div class="card">
             <span class="metric-label">원/달러 환율</span>
-            <div class="metric-value num-clean" id="exchRate">1,300</div>
-            <div class="metric-sub text-xs">실시간 적용</div>
+            <div class="metric-value num-clean" id="exchRate">Loading</div>
+            <div class="metric-sub-row">
+                <span class="text-xs" style="opacity:0.8;">Yahoo Finance</span>
+                <span class="text-xs" style="opacity:0.5;" id="rateTime">--:--:--</span>
+            </div>
         </div>
         <div class="card" style="background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2);">
             <span class="metric-label" style="color: var(--color-accent);">총 투자 가능 금액</span>
             <div class="metric-value num-clean" style="color: var(--color-accent);" id="totalUsdDisp">$0.00</div>
-            <div class="metric-sub text-xs">환전액 + 예수금 합산</div>
+            <div class="metric-sub-row" style="justify-content: center;">
+                <span class="text-xs">환전액 + 예수금 합산</span>
+            </div>
         </div>
     </div>
 
@@ -354,7 +334,6 @@
 </div>
 
 <script>
-    // --- 야수의 명언 ---
     const quotes = [
         "\"사리사욕(私利私慾)은 자본주의의 원동력이다.\"",
         "\"지구는 멸망하지 않는다. 주워라.\"",
@@ -382,12 +361,13 @@
     }
     setTimeout(typeWriter, 500);
 
-    // --- 로직 ---
     const state = { rate: 1300, tqqq: 0, vix: 20, fg: 50 };
     const el = {
         tqqqPrice: document.getElementById('tqqqPrice'),
         tqqqChange: document.getElementById('tqqqChange'),
+        tqqqTime: document.getElementById('tqqqTime'),
         exchRate: document.getElementById('exchRate'),
+        rateTime: document.getElementById('rateTime'),
         totalUsd: document.getElementById('totalUsdDisp'),
         krw: document.getElementById('inputKrw'),
         saved: document.getElementById('inputSaved'),
@@ -409,15 +389,28 @@
 
     const fmt = n => n.toLocaleString();
     const fmtUsd = n => `$${n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    const getTime = () => new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
     async function updateData() {
+        // 환율 (Yahoo)
         try {
-            const res = await fetch('https://open.er-api.com/v6/latest/KRW');
-            const data = await res.json();
-            state.rate = 1 / data.rates.USD;
+            const target = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/KRW=X?interval=1m&range=1d');
+            const res = await fetch(`https://corsproxy.io/?${target}`);
+            const json = await res.json();
+            state.rate = json.chart.result[0].meta.regularMarketPrice;
             el.exchRate.innerText = fmt(Math.round(state.rate));
-        } catch(e) {}
+            el.rateTime.innerText = getTime();
+        } catch(e) {
+            try {
+                const res = await fetch('https://open.er-api.com/v6/latest/KRW');
+                const data = await res.json();
+                state.rate = 1 / data.rates.USD;
+                el.exchRate.innerText = fmt(Math.round(state.rate));
+                el.rateTime.innerText = "고시환율";
+            } catch(e2) {}
+        }
 
+        // TQQQ (Yahoo)
         try {
             const target = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/TQQQ?interval=1d&range=1d');
             const res = await fetch(`https://corsproxy.io/?${target}`);
@@ -425,13 +418,18 @@
             const meta = json.chart.result[0].meta;
             state.tqqq = meta.regularMarketPrice;
             const chg = ((state.tqqq - meta.chartPreviousClose) / meta.chartPreviousClose * 100);
+            
             el.tqqqPrice.innerText = fmtUsd(state.tqqq);
+            // 등락률 복구
             el.tqqqChange.innerText = `${chg>=0?'+':''}${chg.toFixed(2)}%`;
             el.tqqqChange.style.color = chg >= 0 ? 'var(--color-up)' : 'var(--color-down)';
+            // 시간 추가
+            el.tqqqTime.innerText = getTime();
         } catch(e) {
             if(state.tqqq===0) { state.tqqq=80.00; el.tqqqPrice.innerText="OFFLINE"; }
         }
 
+        // VIX
         try {
             const target = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/^VIX?interval=1d&range=1d');
             const res = await fetch(`https://corsproxy.io/?${target}`);
@@ -443,6 +441,7 @@
             state.vix = Number(el.vixSlider.value);
         }
 
+        // F&G
         try {
             const target = encodeURIComponent('https://production.dataviz.cnn.io/index/fearandgreed/graphdata');
             const res = await fetch(`https://corsproxy.io/?${target}`);
@@ -458,7 +457,6 @@
     }
 
     function render() {
-        // 인풋값 없으면 0으로 처리
         const krw = Number(el.krw.value) || 0;
         const saved = Number(el.saved.value) || 0;
         
@@ -513,7 +511,6 @@
         const realBuy = shares * price;
         const remain = totalCap - realBuy;
 
-        // 값이 없으면 대기 상태
         if(krw === 0 && saved === 0) {
             el.stratTitle.innerText = "금액을 입력해주세요";
             el.stratBadge.innerText = "WAIT";
