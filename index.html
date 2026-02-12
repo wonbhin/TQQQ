@@ -1,1 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사리사욕 TQQQ 터미널</title>
+    <style>
+        @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+
+        :root {
+            --bg-main: #09090b;
+            --bg-card: #18181b;
+            --border: #27272a;
+            --text-main: #e4e4e7;
+            --text-sub: #a1a1aa;
+            
+            --color-up: #34d399;
+            --color-down: #f87171;
+            --color-accent: #60a5fa;
+            --color-gold: #fbbf24;
+            
+            --font-main: 'Pretendard', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'Courier New', monospace; 
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container { width: 100%; max-width: 900px; display: grid; gap: 16px; }
+
+        /* 폰트 유틸리티 */
+        .num-mono { font-family: var(--font-mono); font-weight: 700; letter-spacing: -0.5px; } 
+        .num-clean { font-family: var(--font-main); font-weight: 700; letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
+        .kor-bold { font-family: var(--font-main); font-weight: 800; letter-spacing: -0.5px; }
+        
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .text-sm { font-size: 0.85rem; color: var(--text-sub); }
+        .text-xs { font-size: 0.75rem; color: var(--text-sub); }
+        
+        /* 카드 */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 1. 헤더 */
+        .header-section {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 20px;
+        }
+        
+        .quote-box {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            min-height: 1.5em;
+            background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+
+        .brand-sub {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        /* 2. 지표 그리드 */
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .metric-label { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 8px; display: block; font-weight: 500; }
+        .metric-value { font-size: 1.8rem; font-weight: 700; color: #fff; }
+        .metric-sub { font-size: 0.85rem; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+
+        /* 3. 인풋 */
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .input-group { position: relative; }
+        input[type="number"] {
+            width: 100%; background: #000000; border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px 16px 16px 140px;
+            color: #fff; font-size: 1.1rem; font-weight: 700; text-align: right; font-family: var(--font-mono);
+        }
+        input[type="number"]:focus { border-color: var(--color-accent); }
+        .input-label { position: absolute; top: 18px; left: 16px; font-size: 0.9rem; color: var(--text-sub); font-weight: 600; pointer-events: none; }
+
+        /* 4. 지수 상태 */
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .status-badge { font-size: 0.9rem; font-weight: 700; color: var(--text-main); background: #27272a; padding: 4px 10px; border-radius: 6px; }
+
+        /* 5. 전략 결과 */
+        .strategy-card { background: radial-gradient(circle at top right, rgba(255,255,255,0.03), transparent); border: 1px solid var(--border); }
+        .strategy-title { font-size: 1.6rem; font-weight: 900; margin-top: 5px; color: #fff; }
+        .reasoning {
+            background: rgba(63, 63, 70, 0.3); border-left: 3px solid var(--color-accent);
+            padding: 15px; font-size: 0.95rem; line-height: 1.6; margin-bottom: 24px;
+            border-radius: 0 8px 8px 0; color: #d4d4d8;
+        }
+        .step-item {
+            display: flex; align-items: center; background: rgba(255,255,255,0.02);
+            padding: 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;
+        }
+        .step-icon {
+            width: 32px; height: 32px; background: var(--border); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 12px; color: var(--text-main);
+        }
+        .step-desc { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 2px; }
+        .step-val { font-size: 1.1rem; font-weight: 700; font-family: var(--font-main); }
+
+        /* 6. 매매 원칙 (사리사욕 버전) */
+        .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .rule-item { background: rgba(255,255,255,0.02); padding: 16px; border-radius: 12px; border: 1px solid var(--border); }
+        .rule-title { font-weight: 800; font-size: 1rem; margin-bottom: 10px; display:flex; align-items:center; gap:6px; }
+        .rule-desc { font-size: 0.9rem; color: #a1a1aa; line-height: 1.6; }
+        .highlight-txt { color: var(--color-accent); font-weight: 800; }
+        .highlight-gold { color: var(--color-gold); font-weight: 800; }
+        
+        /* 7. 테이블 */
+        .wealth-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .wealth-table th { text-align: left; color: var(--text-sub); font-size: 0.85rem; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        .wealth-table td { padding: 16px 0; border-bottom: 1px solid #27272a55; font-size: 1rem; font-weight: 600; font-family: var(--font-main); }
+
+        /* 애니메이션 */
+        .cursor { display: inline-block; width: 3px; height: 1.2em; background-color: var(--color-gold); margin-left: 2px; animation: blink 1s step-end infinite; vertical-align: bottom; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* 상태별 Glow */
+        .glow-fear { box-shadow: 0 0 30px -10px rgba(52, 211, 153, 0.2); border-color: rgba(52, 211, 153, 0.5); }
+        .glow-greed { box-shadow: 0 0 30px -10px rgba(248, 113, 113, 0.2); border-color: rgba(248, 113, 113, 0.5); }
+        .glow-allin { box-shadow: 0 0 50px -10px rgba(251, 191, 36, 0.4); border-color: var(--color-gold); animation: borderPulse 2s infinite; }
+        @keyframes borderPulse { 0% {border-color: var(--color-gold);} 50% {border-color: #f59e0b;} 100% {border-color: var(--color-gold);} }
+
+        @media (max-width: 768px) {
+            .metrics-grid, .input-grid, .status-grid, .rules-grid { grid-template-columns: 1fr; }
+        }
+        
+        input[type="range"] { display: none; width: 100%; margin-top: 10px; accent-color: var(--text-sub); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="header-section">
+        <div class="quote-box">
+            <span id="typewriter"></span><span class="cursor"></span>
+        </div>
+        <div class="brand-sub">사사로운 이익(私利)과 사사로운 욕심(私慾)을 채우는 TQQQ 알고리즘</div>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="card">
+            <span class="metric-label">TQQQ 현재가</span>
+            <div class="metric-value num-mono" id="tqqqPrice">$0.00</div>
+            <div class="metric-sub num-clean" id="tqqqChange">--%</div>
+        </div>
+        <div class="card">
+            <span class="metric-label">원/달러 환율</span>
+            <div class="metric-value num-clean" id="exchRate">1,300</div>
+            <div class="metric-sub text-xs">실시간 적용</div>
+        </div>
+        <div class="card" style="background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.2);">
+            <span class="metric-label" style="color: var(--color-accent);">총 투자 가능 금액</span>
+            <div class="metric-value num-clean" style="color: var(--color-accent);" id="totalUsdDisp">$0.00</div>
+            <div class="metric-sub text-xs">환전액 + 예수금 합산</div>
+        </div>
+    </div>
+
+    <div class="input-grid">
+        <div class="input-group">
+            <input type="number" id="inputKrw" value="1000000">
+            <span class="input-label">이번 달 적립금 (원)</span>
+        </div>
+        <div class="input-group">
+            <input type="number" id="inputSaved" value="3000">
+            <span class="input-label">보유 달러 (USD)</span>
+        </div>
+    </div>
+
+    <div class="status-grid">
+        <div class="card flex-between">
+            <div>
+                <span class="metric-label">VIX 지수 (공포)</span>
+                <div class="num-mono" style="font-size: 1.6rem;" id="vixVal">--.--</div>
+                <input type="range" id="vixSlider" min="10" max="80" value="20">
+            </div>
+            <div style="text-align: right;">
+                <div id="vixBadge" class="status-badge">로딩중</div>
+                <div class="text-xs" style="margin-top: 4px;">Volatility</div>
+            </div>
+        </div>
+        <div class="card flex-between">
+            <div>
+                <span class="metric-label">공포 탐욕 지수 (심리)</span>
+                <div class="num-mono" style="font-size: 1.6rem;" id="fgVal">--</div>
+                <input type="range" id="fgSlider" min="0" max="100" value="50">
+            </div>
+            <div style="text-align: right;">
+                <div id="fgBadge" class="status-badge">로딩중</div>
+                <div class="text-xs" style="margin-top: 4px;">Sentiment</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="strategyCard" class="card strategy-card">
+        <div class="flex-between" style="margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;">
+            <div>
+                <span class="text-sm" style="font-weight:700; color:#fff;">현재 실행 전략 (Action)</span>
+                <div id="strategyTitle" class="strategy-title kor-bold">분석 대기 중...</div>
+            </div>
+            <div id="strategyBadge" style="padding: 6px 12px; background: #27272a; border-radius: 8px; font-weight: bold; font-size: 0.85rem;">WAIT</div>
+        </div>
+
+        <div class="reasoning">
+            <span style="opacity: 0.7; font-size: 0.8rem; display: block; margin-bottom: 6px; font-weight:800;">STRATEGY REASONING</span>
+            <span id="strategyReason">시장 데이터를 불러오는 중입니다. 잠시만 기다려주세요.</span>
+        </div>
+
+        <div>
+            <div class="step-item">
+                <div class="step-icon">1</div>
+                <div>
+                    <div class="step-desc">환전 (Currency Exchange)</div>
+                    <div id="actionStep1" class="step-val">대기 중</div>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-icon">2</div>
+                <div>
+                    <div class="step-desc">주문 (Buy Order)</div>
+                    <div id="actionStep2" class="step-val">대기 중</div>
+                </div>
+            </div>
+            <div class="step-item">
+                <div class="step-icon">3</div>
+                <div>
+                    <div class="step-desc">홀딩 (Cash Holding)</div>
+                    <div id="actionStep3" class="step-val">대기 중</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="flex-between" style="margin-bottom:15px; border-bottom:1px solid var(--border); padding-bottom:10px;">
+            <span class="text-sm" style="font-weight:700; color:var(--text-main);">사리사욕(私利私慾) 매매 원칙</span>
+            <span class="text-xs">PROJECT: VIX-40</span>
+        </div>
+        <div class="rules-grid">
+            <div class="rule-item">
+                <div class="rule-title" style="color:#e4e4e7;">🟢 평상시: 사사로운 줍줍</div>
+                <div class="rule-desc">
+                    매월 적립금은 무조건 <span class="highlight-txt">100% 달러 환전</span>한다.<br>
+                    공포/탐욕 지수에 따라 TQQQ 비중을 조절하며 <span class="highlight-txt">사사롭게</span> 모아간다.<br>
+                    <span style="font-size:0.8rem; opacity:0.7;">(탐욕엔 현금 비축, 공포엔 욕심내서 매수)</span>
+                </div>
+            </div>
+            <div class="rule-item" style="border-color: rgba(251, 191, 36, 0.3);">
+                <div class="rule-title" style="color:var(--color-gold);">🔥 비상시: 사리사욕 올인</div>
+                <div class="rule-desc">
+                    <span class="highlight-gold">VIX 40 돌파</span> & <span class="highlight-gold">극단적 공포</span> 시,<br>
+                    모아둔 <span class="highlight-gold">보유 달러 전액</span>을 투입하여 욕망을 실현한다.<br>
+                    <span style="font-size:0.8rem; opacity:0.7;">"위기는 곧 부의 추월차선이다."</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="flex-between" style="margin-bottom: 16px;">
+            <span class="metric-label" style="margin:0; font-size:1rem;">미래 자산 시뮬레이션 (CAGR 30%)</span>
+            <span class="text-xs">보수적 기준</span>
+        </div>
+        <table class="wealth-table">
+            <thead>
+                <tr>
+                    <th>기간 (Year)</th>
+                    <th>원금 (Invested)</th>
+                    <th>평가금 (Future Value)</th>
+                    <th>수익률 (Return)</th>
+                </tr>
+            </thead>
+            <tbody id="wealthTable"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    // --- 야수의 명언 (사리사욕 Ver) ---
+    const quotes = [
+        "\"사리사욕(私利私慾)은 자본주의의 원동력이다.\"",
+        "\"지구는 멸망하지 않는다. 주워라.\"",
+        "\"남들이 공포에 질려 던질 때, 내 욕심을 채운다.\"",
+        "\"하락장은 바겐세일 기간이다. 쫄지 말고 즐겨라.\"",
+        "\"시장의 타이밍을 맞추려 하지 말고 시장에 머물러라.\"",
+        "\"야수의 심장으로 매수 버튼을 눌러라.\"",
+        "\"존버는 승리한다. 어차피 우상향이다.\"",
+        "\"변동성은 위험이 아니라 부자가 될 기회다.\"",
+        "\"10년 보유할 생각 아니면 10분도 갖지 마라.\"",
+        "\"오늘의 -3%는 10년 뒤의 티끌이다. 무시해라.\"",
+        "\"공포에 사서 환희에 팔아라. 그게 전부다.\""
+    ];
+
+    const textElement = document.getElementById('typewriter');
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    let charIndex = 0;
+
+    function typeWriter() {
+        if (charIndex < randomQuote.length) {
+            textElement.innerHTML += randomQuote.charAt(charIndex);
+            charIndex++;
+            setTimeout(typeWriter, 50);
+        }
+    }
+    setTimeout(typeWriter, 500);
+
+    // --- 로직 ---
+    const state = { rate: 1300, tqqq: 0, vix: 20, fg: 50 };
+    const el = {
+        tqqqPrice: document.getElementById('tqqqPrice'),
+        tqqqChange: document.getElementById('tqqqChange'),
+        exchRate: document.getElementById('exchRate'),
+        totalUsd: document.getElementById('totalUsdDisp'),
+        krw: document.getElementById('inputKrw'),
+        saved: document.getElementById('inputSaved'),
+        vixVal: document.getElementById('vixVal'),
+        vixBadge: document.getElementById('vixBadge'),
+        vixSlider: document.getElementById('vixSlider'),
+        fgVal: document.getElementById('fgVal'),
+        fgBadge: document.getElementById('fgBadge'),
+        fgSlider: document.getElementById('fgSlider'),
+        stratCard: document.getElementById('strategyCard'),
+        stratTitle: document.getElementById('strategyTitle'),
+        stratBadge: document.getElementById('strategyBadge'),
+        stratReason: document.getElementById('strategyReason'),
+        step1: document.getElementById('actionStep1'),
+        step2: document.getElementById('actionStep2'),
+        step3: document.getElementById('actionStep3'),
+        wealth: document.getElementById('wealthTable')
+    };
+
+    const fmt = n => n.toLocaleString();
+    const fmtUsd = n => `$${n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
+    async function updateData() {
+        try {
+            const res = await fetch('https://open.er-api.com/v6/latest/KRW');
+            const data = await res.json();
+            state.rate = 1 / data.rates.USD;
+            el.exchRate.innerText = fmt(Math.round(state.rate));
+        } catch(e) {}
+
+        try {
+            const target = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/TQQQ?interval=1d&range=1d');
+            const res = await fetch(`https://corsproxy.io/?${target}`);
+            const json = await res.json();
+            const meta = json.chart.result[0].meta;
+            state.tqqq = meta.regularMarketPrice;
+            const chg = ((state.tqqq - meta.chartPreviousClose) / meta.chartPreviousClose * 100);
+            el.tqqqPrice.innerText = fmtUsd(state.tqqq);
+            el.tqqqChange.innerText = `${chg>=0?'+':''}${chg.toFixed(2)}%`;
+            el.tqqqChange.style.color = chg >= 0 ? 'var(--color-up)' : 'var(--color-down)';
+        } catch(e) {
+            if(state.tqqq===0) { state.tqqq=80.00; el.tqqqPrice.innerText="OFFLINE"; }
+        }
+
+        try {
+            const target = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/^VIX?interval=1d&range=1d');
+            const res = await fetch(`https://corsproxy.io/?${target}`);
+            const json = await res.json();
+            state.vix = json.chart.result[0].meta.regularMarketPrice;
+            el.vixSlider.style.display = 'none';
+        } catch(e) {
+            el.vixSlider.style.display = 'block';
+            state.vix = Number(el.vixSlider.value);
+        }
+
+        try {
+            const target = encodeURIComponent('https://production.dataviz.cnn.io/index/fearandgreed/graphdata');
+            const res = await fetch(`https://corsproxy.io/?${target}`);
+            const json = await res.json();
+            state.fg = Math.round(json.fear_and_greed.score);
+            el.fgSlider.style.display = 'none';
+        } catch(e) {
+            el.fgSlider.style.display = 'block';
+            state.fg = Number(el.fgSlider.value);
+        }
+
+        render();
+    }
+
+    function render() {
+        const krw = Number(el.krw.value);
+        const saved = Number(el.saved.value);
+        const monthlyUsd = krw / state.rate;
+        const totalCap = monthlyUsd + saved;
+
+        el.totalUsd.innerText = fmtUsd(totalCap);
+
+        el.vixVal.innerText = state.vix.toFixed(2);
+        let vixTxt = "안정 (Stable)", vixCol = "var(--color-up)";
+        if(state.vix>=40) { vixTxt="🔥 멸망 (DOOM)"; vixCol="var(--color-down)"; }
+        else if(state.vix>=30) { vixTxt="공포 (High Vol)"; vixCol="#fb923c"; }
+        else if(state.vix>=20) { vixTxt="변동성 (Volatile)"; vixCol="#fbbf24"; }
+        el.vixBadge.innerText = vixTxt; el.vixBadge.style.color = vixCol;
+
+        el.fgVal.innerText = state.fg;
+        let fgTxt = "중립 (Neutral)", fgCol = "#9ca3af";
+        if(state.fg<=25) { fgTxt="극단적 공포 (Ext. Fear)"; fgCol="var(--color-down)"; }
+        else if(state.fg<=45) { fgTxt="공포 (Fear)"; fgCol="#fb923c"; }
+        else if(state.fg<=55) { fgTxt="중립 (Neutral)"; fgCol="#9ca3af"; }
+        else if(state.fg<=75) { fgTxt="탐욕 (Greed)"; fgCol="#a3e635"; }
+        else { fgTxt="극단적 탐욕 (Ext. Greed)"; fgCol="var(--color-up)"; }
+        el.fgBadge.innerText = fgTxt; el.fgBadge.style.color = fgCol;
+
+        let ratio=0, mode="", reason="", cls="";
+        
+        if (state.vix >= 40 && state.fg <= 25) {
+            ratio = 1.0; mode = "지구 멸망 올인"; cls = "glow-allin";
+            reason = "🚨 VIX 40 돌파 + 극단적 공포 감지!<br>사리사욕을 채울 절호의 기회입니다.<br><strong>[보유 달러 전액 투입]</strong>하여 바닥을 긁어모으십시오.";
+        } else if (state.fg <= 25) {
+            ratio = 1.0; mode = "적극 줍줍 (100%)"; cls = "glow-fear";
+            reason = "⚡ 극단적 공포 구간입니다.<br>환전한 <strong>적립금의 100%</strong>를 공격적으로 매수하십시오. 지금 사야 평단가가 내려갑니다.";
+        } else if (state.fg <= 45) {
+            ratio = 0.75; mode = "분할 줍줍 (75%)"; cls = "glow-fear";
+            reason = "📉 공포 구간입니다.<br><strong>적립금의 75%</strong>를 매수하고, 나머지는 더 큰 하락에 대비해 현금으로 챙겨두십시오.";
+        } else if (state.fg <= 55) {
+            ratio = 0.5; mode = "중립 매수 (50%)";
+            reason = "⚖️ 중립 구간입니다.<br>방향이 불확실합니다. 기계적으로 <strong>적립금의 절반(50%)</strong>만 매수하고 관망하십시오.";
+        } else if (state.fg <= 75) {
+            ratio = 0.25; mode = "소극적 매수 (25%)"; cls = "glow-greed";
+            reason = "📈 탐욕 구간입니다. 비쌉니다.<br><strong>적립금의 25%</strong>만 매수하고, 현금을 비축하여 폭락장을 기다리십시오.";
+        } else {
+            ratio = 0; mode = "매수 중단 (0%)"; cls = "glow-greed";
+            reason = "🛑 극단적 탐욕 구간입니다. 곧 조정이 옵니다.<br>매수를 멈추고 현금을 100% 비축하십시오.";
+        }
+
+        let buyUsd = monthlyUsd * ratio;
+        if(state.vix >= 40 && state.fg <= 25) buyUsd = totalCap;
+
+        const price = state.tqqq>0 ? state.tqqq : 1;
+        const shares = Math.floor(buyUsd / price);
+        const realBuy = shares * price;
+        const remain = totalCap - realBuy;
+
+        el.stratCard.className = `card strategy-card ${cls}`;
+        el.stratTitle.innerText = `${shares}주 매수 목표`;
+        el.stratBadge.innerText = mode;
+        el.stratBadge.style.color = cls.includes('fear') ? 'var(--color-up)' : (cls.includes('greed') ? 'var(--color-down)' : (cls.includes('allin')?'var(--color-gold)':'#fff'));
+        el.stratReason.innerHTML = reason;
+
+        el.step1.innerHTML = `<span class="num-clean" style="color:#fff">${fmt(krw)}</span>원 ➡ <span class="kor-bold" style="color:var(--color-accent)">전액 환전 (${fmtUsd(monthlyUsd)})</span>`;
+        el.step2.innerHTML = `TQQQ <span class="kor-bold" style="color:var(--color-accent)">${shares}주</span> 매수 (약 ${fmtUsd(realBuy)})`;
+        el.step3.innerHTML = `잔여 예수금 <span class="kor-bold" style="color:var(--color-gold)">${fmtUsd(remain)}</span> 홀딩`;
+
+        const cagr = 0.30;
+        let html = "";
+        [3,5,10].forEach(y => {
+            const m = y*12;
+            const r = Math.pow(1+cagr, 1/12)-1;
+            const fv = krw * (Math.pow(1+r, m)-1)/r;
+            const inv = krw*m;
+            const p = ((fv-inv)/inv*100).toFixed(0);
+            html += `<tr><td>${y}년 뒤</td><td class="num-clean">${fmt(inv)}원</td><td class="num-clean" style="color:#fff; font-weight:700;">${fmt(Math.round(fv))}원</td><td class="num-clean" style="color:var(--color-up)">+${p}%</td></tr>`;
+        });
+        el.wealth.innerHTML = html;
+    }
+
+    el.krw.addEventListener('input', render);
+    el.saved.addEventListener('input', render);
+    el.vixSlider.addEventListener('input', render);
+    el.fgSlider.addEventListener('input', render);
+
+    updateData();
+    setInterval(updateData, 10000);
+</script>
+</body>
+</html>
 
